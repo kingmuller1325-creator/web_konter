@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blueprint Arsitektur Enterprise - Aplikasi Web Konter Pulsa & Multi-Layanan</title>
+<style>
+  :root {
+    --primary: #1e40af;
+    --primary-dark: #1e3a8a;
+    --primary-light: #dbeafe;
+    --accent: #0891b2;
+    --success: #059669;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --code-bg: #0f172a;
+    --code-text: #e2e8f0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 15px;
+  }
+
+  /* ===== LAYOUT ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    background: var(--primary-dark);
+    color: white;
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+
+  .sidebar-brand {
+    padding: 0 24px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    margin-bottom: 16px;
+  }
+
+  .sidebar-brand h1 {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.3px;
+  }
+
+  .sidebar-brand span {
+    display: block;
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .sidebar nav ul { list-style: none; }
+
+  .sidebar nav a {
+    display: block;
+    padding: 9px 24px;
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+
+  .sidebar nav a:hover {
+    background: rgba(255,255,255,0.08);
+    color: white;
+    border-left-color: var(--accent);
+  }
+
+  .sidebar nav .section-title {
+    padding: 14px 24px 6px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 700;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .main {
+    padding: 40px 60px;
+    max-width: 1400px;
+  }
+
+  /* ===== HEADER ===== */
+  .doc-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: white;
+    padding: 48px 40px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 30px rgba(30,64,175,0.2);
+  }
+
+  .doc-header .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .doc-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .doc-header p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.9);
+    max-width: 800px;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .meta-item .label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 4px;
+  }
+
+  .meta-item .value {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  /* ===== SECTIONS ===== */
+  section {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 36px 40px;
+    margin-bottom: 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+  }
+
+  section h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin-bottom: 8px;
+    padding-bottom: 16px;
+    border-bottom: 3px solid var(--primary-light);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  section h2 .num {
+    background: var(--primary);
+    color: white;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  section h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin: 28px 0 12px;
+  }
+
+  section h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 20px 0 10px;
+  }
+
+  section p { margin-bottom: 14px; }
+
+  section ul, section ol {
+    margin: 12px 0 16px 24px;
+  }
+
+  section li { margin-bottom: 6px; }
+
+  /* ===== TABLES ===== */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 16px 0 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    background: white;
+  }
+
+  thead {
+    background: var(--primary-dark);
+    color: white;
+  }
+
+  th {
+    padding: 12px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  tbody tr:hover { background: var(--primary-light); }
+
+  /* ===== CODE BLOCK ===== */
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 20px 24px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    margin: 16px 0;
+    border-left: 4px solid var(--accent);
+  }
+
+  code {
+    font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+    background: #f1f5f9;
+    color: var(--primary-dark);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  pre code { background: none; color: inherit; padding: 0; }
+
+  /* ===== CALLOUT ===== */
+  .callout {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin: 16px 0;
+    border-left: 4px solid;
+    font-size: 14px;
+  }
+
+  .callout.info { background: #eff6ff; border-color: var(--primary); }
+  .callout.success { background: #ecfdf5; border-color: var(--success); }
+  .callout.warning { background: #fffbeb; border-color: var(--warning); }
+  .callout.danger { background: #fef2f2; border-color: var(--danger); }
+
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  /* ===== CARDS GRID ===== */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+
+  .card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.2s;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+    border-color: var(--primary);
+  }
+
+  .card h4 {
+    color: var(--primary-dark);
+    margin: 0 0 8px;
+    font-size: 14px;
+  }
+
+  .card p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  /* ===== BADGE ===== */
+  .badge-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-pill.primary { background: var(--primary-light); color: var(--primary-dark); }
+  .badge-pill.success { background: #d1fae5; color: #065f46; }
+  .badge-pill.warning { background: #fef3c7; color: #92400e; }
+  .badge-pill.danger { background: #fee2e2; color: #991b1b; }
+
+  /* ===== TOC ===== */
+  .toc {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+  }
+
+  .toc h3 {
+    margin: 0 0 16px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+  }
+
+  .toc ol {
+    columns: 2;
+    column-gap: 32px;
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .toc li {
+    break-inside: avoid;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .toc a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .toc a:hover { text-decoration: underline; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* ===== PRINT ===== */
+  @media print {
+    body { background: white; font-size: 11pt; }
+    .sidebar { display: none; }
+    .layout { grid-template-columns: 1fr; }
+    .main { padding: 0; max-width: 100%; }
+    section { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; padding: 20px; }
+    .doc-header { box-shadow: none; }
+    pre { border: 1px solid #ccc; }
+    a { color: black; text-decoration: none; }
+    .toc { page-break-after: always; }
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1024px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar {
+      position: static;
+      height: auto;
+      padding: 16px 0;
+    }
+    .sidebar nav ul { display: flex; flex-wrap: wrap; }
+    .sidebar nav a { padding: 8px 16px; font-size: 12px; }
+    .sidebar nav .section-title { display: none; }
+    .main { padding: 24px 20px; }
+    section { padding: 24px 20px; }
+    .doc-header { padding: 32px 24px; }
+    .doc-header h1 { font-size: 24px; }
+    .toc ol { columns: 1; }
+  }
+
+  /* ===== SCROLL ===== */
+  html { scroll-behavior: smooth; }
+  section { scroll-margin-top: 20px; }
+
+  /* ===== ASCII DIAGRAM ===== */
+  .diagram {
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: #1e293b;
+    white-space: pre;
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h1>Blueprint Arsitektur</h1>
+      <span>Konter Pulsa Enterprise</span>
+    </div>
+    <nav>
+      <div class="section-title">Dokumen</div>
+      <ul>
+        <li><a href="#executive">1. Executive Summary</a></li>
+        <li><a href="#context">2. System Context (C4 L1)</a></li>
+        <li><a href="#stack">3. Technology Stack</a></li>
+        <li><a href="#modules">4. Modul &amp; Domain (DDD)</a></li>
+        <li><a href="#container">5. Container (C4 L2)</a></li>
+        <li><a href="#database">6. Struktur Database</a></li>
+      </ul>
+      <div class="section-title">UML</div>
+      <ul>
+        <li><a href="#uml-usecase">7.1 Use Case</a></li>
+        <li><a href="#uml-seq1">7.2 Sequence: Scan Barcode</a></li>
+        <li><a href="#uml-seq2">7.3 Sequence: POS</a></li>
+        <li><a href="#uml-class">7.4 Class Diagram</a></li>
+        <li><a href="#uml-state1">7.5 State: Order</a></li>
+        <li><a href="#uml-state2">7.6 State: Service</a></li>
+        <li><a href="#uml-comp">7.7 Component</a></li>
+      </ul>
+      <div class="section-title">Lainnya</div>
+      <ul>
+        <li><a href="#pwa">8. PWA Strategy</a></li>
+        <li><a href="#security">9. Security &amp; Compliance</a></li>
+        <li><a href="#roadmap">10. Roadmap</a></li>
+        <li><a href="#nfr">11. Non-Functional</a></li>
+        <li><a href="#conclusion">12. Kesimpulan</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <!-- HEADER -->
+    <header class="doc-header">
+      <div class="badge">Enterprise Architecture Blueprint v1.0</div>
+      <h1>Aplikasi Web Konter Pulsa &amp; Multi-Layanan</h1>
+      <p>Blueprint arsitektur enterprise untuk platform konter pulsa modern: PPOB, pulsa, kuota, transfer bank, aksesoris HP, HP second, dan service HP — dengan pendekatan PWA, Domain-Driven Design, dan Event-Driven Architecture.</p>
+      <div class="meta-grid">
+        <div class="meta-item">
+          <div class="label">Peran</div>
+          <div class="value">Enterprise Application Architect</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Metodologi</div>
+          <div class="value">TOGAF ADM + DDD + C4 Model</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Domain</div>
+          <div class="value">Retail Telekomunikasi &amp; PPOB</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Versi</div>
+          <div class="value">1.0 — Draft Final</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- TOC -->
+    <div class="toc">
+      <h3>Daftar Isi</h3>
+      <ol>
+        <li><a href="#executive">Executive Summary</a></li>
+        <li><a href="#context">System Context (C4 L1)</a></li>
+        <li><a href="#stack">Technology Stack</a></li>
+        <li><a href="#modules">Modul &amp; Domain (DDD)</a></li>
+        <li><a href="#container">Container (C4 L2)</a></li>
+        <li><a href="#database">Struktur Database</a></li>
+        <li><a href="#uml-usecase">UML: Use Case</a></li>
+        <li><a href="#uml-seq1">UML: Sequence Scan Barcode</a></li>
+        <li><a href="#uml-seq2">UML: Sequence POS</a></li>
+        <li><a href="#uml-class">UML: Class Diagram</a></li>
+        <li><a href="#uml-state1">UML: State Order</a></li>
+        <li><a href="#uml-state2">UML: State Service</a></li>
+        <li><a href="#uml-comp">UML: Component</a></li>
+        <li><a href="#pwa">PWA Strategy</a></li>
+        <li><a href="#security">Security &amp; Compliance</a></li>
+        <li><a href="#roadmap">Roadmap Implementasi</a></li>
+        <li><a href="#nfr">Non-Functional Requirements</a></li>
+        <li><a href="#conclusion">Kesimpulan &amp; Rekomendasi</a></li>
+      </ol>
+    </div>
+
+    <!-- ===== 1. EXECUTIVE SUMMARY ===== -->
+    <section id="executive">
+      <h2><span class="num">1</span>Executive Summary &amp; Business Context</h2>
+
+      <h3>1.1 Profil Bisnis</h3>
+      <p>Konter pulsa modern bukan lagi sekadar jual pulsa. Ini adalah <strong>hybrid retail</strong> yang menggabungkan:</p>
+      <div class="card-grid">
+        <div class="card">
+          <h4>Digital Goods</h4>
+          <p>Pulsa, kuota, token listrik, PPOB</p>
+        </div>
+        <div class="card">
+          <h4>Physical Goods</h4>
+          <p>Aksesoris HP, HP second</p>
+        </div>
+        <div class="card">
+          <h4>Services</h4>
+          <p>Service HP, transfer bank, pembayaran tagihan</p>
+        </div>
+        <div class="card">
+          <h4>F&amp;B / Cafe</h4>
+          <p>Opsional — modul pemesanan scan barcode</p>
+        </div>
+      </div>
+
+      <h3>1.2 Tantangan Arsitektur Utama</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Tantangan</th><th>Dampak</th><th>Solusi Arsitektur</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Transaksi digital real-time ke aggregator (Telkom, bank, operator)</td><td>Latency &amp; sinkronisasi status</td><td>Saga Pattern + Event-Driven</td></tr>
+            <tr><td>Stok fisik vs stok digital</td><td>Inkonsistensi</td><td>Inventory Ledger terpisah</td></tr>
+            <tr><td>Multi-channel (web, kasir, mobile PWA)</td><td>Duplikasi logic</td><td>Shared Core Domain Services</td></tr>
+            <tr><td>Laporan akuntansi standar (SAK EMKM/PSAK)</td><td>Audit trail</td><td>Event Sourcing + Journal Ledger</td></tr>
+            <tr><td>Harga dinamis (pulsa, kuota, HP second)</td><td>Kompleksitas pricing</td><td>Pricing Engine terpusat</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== 2. SYSTEM CONTEXT ===== -->
+    <section id="context">
+      <h2><span class="num">2</span>High-Level Architecture (C4 Level 1 — System Context)</h2>
+
+      <div class="diagram">┌──────────────────────────────────────────────────────────────────┐
+│                        EXTERNAL ACTORS                            │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌───────────────┐    │
+│  │ Customer │  │  Kasir   │  │  Admin   │  │ Teknisi Servis│    │
+│  │ (PWA)    │  │ (POS)    │  │ (Backend)│  │               │    │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └───────┬───────┘    │
+└───────┼─────────────┼─────────────┼────────────────┼────────────┘
+        │             │             │                │
+        ▼             ▼             ▼                ▼
+┌──────────────────────────────────────────────────────────────────┐
+│              KONTER PULSA ENTERPRISE PLATFORM (PWA)              │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │  API Gateway (Kong / Traefik) + BFF (Node/NestJS)          │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│  ┌──────┬──────┬──────┬──────┬──────┬──────┬──────┬──────┐      │
+│  │Order │ POS  │Reser │Invty │Finan │Prod  │Serv  │Report│      │
+│  │Module│Module│Module│Module│Module│Module│Module│Module│      │
+│  └──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┘      │
+└──────────────────────────────────────────────────────────────────┘
+        │             │             │                │
+        ▼             ▼             ▼                ▼
+┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────────────┐
+│ Aggregator│ │  Payment  │ │  Courier/ │ │  Bank &amp; Telkom    │
+│ Pulsa/PPOB│ │  Gateway  │ │  Logistik │ │  (Transfer/VA)    │
+│ (IRS,etc) │ │ (Midtrans)│ │           │ │                   │
+└───────────┘ └───────────┘ └───────────┘ └───────────────────┘</div>
+    </section>
+
+    <!-- ===== 3. TECH STACK ===== -->
+    <section id="stack">
+      <h2><span class="num">3</span>Technology Stack (Production-Grade)</h2>
+
+      <h3>3.1 Frontend Layer</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Layer</th><th>Teknologi</th><th>Alasan</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Customer PWA</strong></td><td>Next.js 14 (App Router) + TypeScript + TailwindCSS + shadcn/ui</td><td>SSR untuk SEO produk, PWA offline</td></tr>
+            <tr><td><strong>POS Kasir</strong></td><td>React 18 + Vite + TanStack Query + Zustand</td><td>Cepat, offline-first, hot reload</td></tr>
+            <tr><td><strong>Admin Dashboard</strong></td><td>Next.js 14 + Ant Design Pro</td><td>Komponen enterprise lengkap</td></tr>
+            <tr><td><strong>Mobile Scanner</strong></td><td><code>@zxing/browser</code> + <code>html5-qrcode</code></td><td>Barcode/QR scan via kamera HP</td></tr>
+            <tr><td><strong>State/Offline</strong></td><td>Workbox + IndexedDB (Dexie.js)</td><td>Sinkronisasi saat online</td></tr>
+            <tr><td><strong>PWA Manifest</strong></td><td><code>next-pwa</code> + Service Worker custom</td><td>Installable, push notif</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>3.2 Backend Layer</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Layer</th><th>Teknologi</th><th>Alasan</th></tr></thead>
+          <tbody>
+            <tr><td><strong>API Gateway</strong></td><td>Kong / Traefik</td><td>Rate limit, auth, routing</td></tr>
+            <tr><td><strong>BFF / Core API</strong></td><td>NestJS 10 (Node.js 20 LTS)</td><td>Modular, DI, cocok DDD</td></tr>
+            <tr><td><strong>Realtime</strong></td><td>Socket.IO / WebSocket</td><td>Update status transaksi live</td></tr>
+            <tr><td><strong>Job Queue</strong></td><td>BullMQ + Redis</td><td>Async: cek status, kirim notif</td></tr>
+            <tr><td><strong>Scheduler</strong></td><td>Cron (BullMQ repeatable)</td><td>Rekonsiliasi harian</td></tr>
+            <tr><td><strong>Service Mesh</strong></td><td>(Opsional) Istio</td><td>Untuk skala besar</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>3.3 Data Layer</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kebutuhan</th><th>Teknologi</th><th>Alasan</th></tr></thead>
+          <tbody>
+            <tr><td><strong>OLTP Utama</strong></td><td>PostgreSQL 16</td><td>ACID, JSONB, full-text</td></tr>
+            <tr><td><strong>Cache</strong></td><td>Redis 7</td><td>Session, rate limit, hot data</td></tr>
+            <tr><td><strong>Search</strong></td><td>Meilisearch / Elasticsearch</td><td>Pencarian produk &amp; HP second</td></tr>
+            <tr><td><strong>Object Storage</strong></td><td>MinIO / S3</td><td>Foto HP second, bukti transfer</td></tr>
+            <tr><td><strong>Time-Series</strong></td><td>TimescaleDB</td><td>Log transaksi &amp; metrik</td></tr>
+            <tr><td><strong>Message Broker</strong></td><td>RabbitMQ / Kafka</td><td>Event-driven (stok, akuntansi)</td></tr>
+            <tr><td><strong>Data Warehouse</strong></td><td>ClickHouse / BigQuery</td><td>Laporan analitik berat</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>3.4 Infrastructure &amp; DevOps</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Layer</th><th>Teknologi</th></tr></thead>
+          <tbody>
+            <tr><td>Container</td><td>Docker + Docker Compose (dev), Kubernetes (prod)</td></tr>
+            <tr><td>CI/CD</td><td>GitHub Actions / GitLab CI</td></tr>
+            <tr><td>IaC</td><td>Terraform + Ansible</td></tr>
+            <tr><td>Monitoring</td><td>Prometheus + Grafana + Loki</td></tr>
+            <tr><td>Tracing</td><td>OpenTelemetry + Jaeger</td></tr>
+            <tr><td>Secret</td><td>HashiCorp Vault</td></tr>
+            <tr><td>CDN</td><td>Cloudflare</td></tr>
+            <tr><td>Backup</td><td>pgBackRest + S3 Glacier</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>3.5 Integration Eksternal</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Layanan</th><th>Provider Umum di Indonesia</th></tr></thead>
+          <tbody>
+            <tr><td>Pulsa/PPOB</td><td>IRS Pulsa, Digiflazz, VIP Reseller, M-Kios</td></tr>
+            <tr><td>Payment Gateway</td><td>Midtrans, Xendit, Duitku, Tripay</td></tr>
+            <tr><td>Bank Transfer</td><td>BCA VA, Mandiri VA, BRI VA, BNI VA</td></tr>
+            <tr><td>Telkom/IndiHome</td><td>Via aggregator PPOB</td></tr>
+            <tr><td>SMS/WA Notif</td><td>Twilio, Fonnte, Wablas</td></tr>
+            <tr><td>Maps/Kurir</td><td>RajaOngkir, Biteship</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== 4. MODULES ===== -->
+    <section id="modules">
+      <h2><span class="num">4</span>Modul &amp; Domain Boundaries (DDD)</h2>
+
+      <h3>4.1 Peta Bounded Context</h3>
+      <div class="diagram">┌─────────────────────────────────────────────────────────────┐
+│                    KONTER PULSA PLATFORM                     │
+├──────────────┬──────────────┬──────────────┬────────────────┤
+│  ORDERING    │   POS/CAISSE │  RESERVATION │   INVENTORY    │
+│  CONTEXT     │   CONTEXT    │   CONTEXT    │   CONTEXT      │
+│  (Scan menu) │              │              │                │
+├──────────────┴──────────────┴──────────────┴────────────────┤
+│              SHARED KERNEL: Product, Price, Customer         │
+├──────────────┬──────────────┬──────────────┬────────────────┤
+│  FINANCE &amp;   │   PRODUCT    │   SERVICE    │   REPORTING    │
+│  ACCOUNTING  │   CATALOG    │   (HP Repair)│   &amp; ANALYTICS  │
+├──────────────┴──────────────┴──────────────┴────────────────┤
+│         SUPPORTING: Notification, Auth, Audit, Media         │
+└─────────────────────────────────────────────────────────────┘</div>
+
+      <h3>4.2 Detail Modul</h3>
+
+      <h4>Modul 1: Pemesanan Scan Barcode (Customer-Facing PWA)</h4>
+      <ul>
+        <li>Generate QR/barcode per meja/outlet → URL <code>/order?outlet=X&amp;table=Y</code></li>
+        <li>Customer scan → lihat menu (produk fisik, F&amp;B, layanan)</li>
+        <li>Keranjang → checkout → pilih metode (ambil di tempat / antar)</li>
+        <li>Status real-time (dapur/kasir)</li>
+      </ul>
+
+      <h4>Modul 2: Kasir / Point of Sale (POS)</h4>
+      <ul>
+        <li>Multi-shift kasir, buka/tutup kas</li>
+        <li>Transaksi cepat: pulsa, kuota, token, aksesoris, HP second, service</li>
+        <li>Split payment, diskon, voucher</li>
+        <li>Print struk (thermal 58/80mm) &amp; e-receipt</li>
+        <li>Refund &amp; void dengan approval</li>
+      </ul>
+
+      <h4>Modul 3: Reservasi &amp; Booking Online</h4>
+      <ul>
+        <li>Form booking di website (tanggal,

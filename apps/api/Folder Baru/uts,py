@@ -1,0 +1,62 @@
+class Barang:
+    def __init__(self, nama_barang, kode_barang, harga, stok):
+        self.nama_barang = nama_barang
+        self.kode_barang = kode_barang
+        self.harga = harga
+        self.__stok = stok  # atribut private
+
+    def get_stok(self):
+        return self.__stok
+
+    def tampilkan_info(self):
+        harga_rp = f"Rp{self.harga:,.0f}".replace(",", ".")
+        print("=" * 35)
+        print(f"Nama Barang : {self.nama_barang}")
+        print(f"Kode Barang : {self.kode_barang}")
+        print(f"Harga       : {harga_rp}")
+        print(f"Stok        : {self.__stok} unit")
+        print("=" * 35)
+
+    def barang_masuk(self, jumlah):
+        if jumlah <= 0:
+            print(f"[DITOLAK] Jumlah barang masuk harus lebih besar dari nol (input: {jumlah}).")
+            return
+        self.__stok += jumlah
+        print(f"[BERHASIL] Barang masuk {jumlah} unit. Stok sekarang: {self.__stok} unit.")
+
+    def barang_keluar(self, jumlah):
+        if jumlah <= 0:
+            print(f"[DITOLAK] Jumlah barang keluar harus lebih besar dari nol (input: {jumlah}).")
+        elif jumlah > self.__stok:
+            print(f"[DITOLAK] Stok tidak cukup. Diminta {jumlah} unit, tersedia {self.__stok} unit.")
+        else:
+            self.__stok -= jumlah
+            print(f"[BERHASIL] Barang keluar {jumlah} unit. Stok sekarang: {self.__stok} unit.")
+
+
+# ===== Pengujian program =====
+if __name__ == "__main__":
+    barang1 = Barang("Mouse Wireless", "BRG001", 125000, 20)
+
+    print("1. Informasi barang:")
+    barang1.tampilkan_info()
+
+    print("\n2. Barang masuk 10 unit:")
+    barang1.barang_masuk(10)
+
+    print("\n3. Barang keluar 5 unit:")
+    barang1.barang_keluar(5)
+
+    print("\n4. Stok akhir:")
+    print(f"Stok akhir {barang1.nama_barang}: {barang1.get_stok()} unit")
+
+    # ===== Pengujian validasi =====
+    print("\n--- Pengujian Validasi Stok ---")
+    barang1.barang_masuk(0)       # jumlah tidak valid
+    barang1.barang_masuk(-5)      # jumlah tidak valid
+    barang1.barang_keluar(0)      # jumlah tidak valid
+    barang1.barang_keluar(100)    # melebihi stok
+    barang1.barang_keluar(10)     # valid
+
+    print()
+    barang1.tampilkan_info()
